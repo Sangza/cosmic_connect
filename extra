@@ -1,0 +1,47 @@
+// to get amount for last 1 day, 1 month or
+const express = require("express");
+const router = express.Router();
+const Payments = require("../models/Payments"); // Adjust path as needed
+const { auth, admin } = require("../middleware/auth");
+
+const moment = require("moment"); // You can install moment using npm or use JavaScript's Date API
+
+// Get total payment amount within a specific time range
+router.get("/totalamount", admin, auth, async (req, res) => {
+  try {
+    // Get current date and time
+    const now = moment();
+
+    // Calculate time ranges
+    const last24Hours = now.subtract(24, "hours").toDate();
+    const last7Days = now.subtract(7, "days").toDate();
+    const last1Month = now.subtract(1, "months").toDate();
+
+    // Get total payment for each time range
+    const total24hrs = await Payments.aggregate([
+      { $match: { createdAt: { $gte: last24Hours } } },
+      { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
+    ]);
+
+    const total7days = await Payments.aggregate([
+      { $match: { createdAt: { $gte: last7Days } } },
+      { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
+    ]);
+
+    const total1Month = await Payments.aggregate([
+      { $match: { createdAt: { $gte: last1Month } } },
+      { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
+    ]);
+
+    res.status(200).json({
+      total24hrs: total24hrs[0]?.totalAmount || 0,
+      total7days: total7days[0]?.totalAmount || 0,
+      total1Month: total1Month[0]?.totalAmount || 0,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+module.exports = router;
