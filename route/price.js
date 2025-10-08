@@ -25,7 +25,7 @@ router.post("/:id", auth, admin, async (req, res) => {
 });
 
 //get the prices for a particular spot
-router.get("/:id", auth, admin, async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
   const spot = await Spots.findById({ _id: req.params.id });
   if (!spot) return res.status(400).send("spot doesn't exist");
 

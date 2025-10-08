@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
   const token = user.generateAuthToken();
   res
     .header("x-auth-token", token)
-    .send(_.pick(user, ["email", "username", "currentroom"]));
+    .send(_.pick(user, ["email", "username", "currentroom", "_id", "isAdmin"]));
 });
 router.put("/:id", auth, async (req, res) => {
   try {

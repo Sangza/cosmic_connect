@@ -5,22 +5,25 @@ const auth = require("../middlewares/auth");
 const admin = require("../middlewares/admin");
 const { Users } = require("../model/user");
 
-router.post("/:id", auth, admin, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    const user = await Users.findOne({ _id: req.params.id, isAdmin: true });
+    const user = await Users.findOne({ _id: req.body.id, isAdmin: true });
     if (!user) return res.status(400).send("User not found or not an admin");
 
+    console.log(user);
     let spot = await Spots.findOne({ name: req.body.name });
     if (spot) return res.status(400).send("Name already exists, pick another");
+    console.log(spot);
 
     spot = new Spots({
       location: req.body.location,
-      owner: req.params.id,
+      owner: req.body.id,
       name: req.body.name,
       source: req.body.source,
     });
 
     await spot.save();
+    console.log(spot);
     res.status(200).send({ message: "Spot created successfully", spot });
   } catch (error) {
     res.status(500).send("Internal Server Error: " + error.message);
