@@ -13,7 +13,7 @@ router.post(
   async (req, res) => {
     try {
       const secret = process.env.SECRET_KEY_TEST;
-      console.log("Using secret:", process.env.SECRET_KEY_TEST, secret);
+      // console.log("Using secret:", process.env.SECRET_KEY_TEST, secret);
 
       // Verify signature
       const hash = crypto
@@ -61,16 +61,16 @@ router.post(
           return res.sendStatus(200);
         }
 
-        // const updatePayment = await Payments.findOneAndUpdate(
-        //   { _id: payment._id, user: user._id }, // ✅ match by ObjectId reference
-        //   {
-        //     $set: {
-        //       status: "successful",
-        //     },
-        //   },
-        //   { new: true }
-        // );
-        // console.log("update:", updatePayment);
+        const updatePayment = await Payments.findOneAndUpdate(
+          { _id: payment._id }, // ✅ match by ObjectId reference
+          {
+            $set: {
+              status: "successful",
+            },
+          },
+          { new: true }
+        );
+        console.log("update:", updatePayment);
 
         // Update coupon
         const updatedCoupon = await Coupons.findByIdAndUpdate(
@@ -83,9 +83,9 @@ router.post(
                 username: user.username,
               },
               paymentId: {
-                status: payment.status,
-                _id: payment._id,
-                createdAt: payment.createdAt,
+                status: updatePayment.status,
+                _id: updatePayment._id,
+                createdAt: updatePayment.createdAt,
               },
             },
           },
